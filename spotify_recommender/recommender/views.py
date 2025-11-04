@@ -314,15 +314,21 @@ def fetch_listening_history(request):
             track_data = item['track']
             
             # Create or get Track record (get_or_create prevents duplicates)
+            # Handle preview_url - ensure it's not None (can be None from Spotify API)
+            preview_url = track_data.get('preview_url') or ''
+            album_cover_url = ''
+            if track_data['album'].get('images'):
+                album_cover_url = track_data['album']['images'][0]['url'] if track_data['album']['images'] else ''
+            
             track, created = Track.objects.get_or_create(
                 spotify_id=track_data['id'],
                 defaults={
                     'name': track_data['name'],
                     'artist': ', '.join([artist['name'] for artist in track_data.get('artists', [])]),
                     'album': track_data['album']['name'],
-                    'album_cover_url': track_data['album']['images'][0]['url'] if track_data['album'].get('images') else '',
-                    'preview_url': track_data.get('preview_url', ''),
-                    'external_url': track_data.get('external_urls', {}).get('spotify', ''),
+                    'album_cover_url': album_cover_url,
+                    'preview_url': preview_url,
+                    'external_url': track_data.get('external_urls', {}).get('spotify', '') or '',
                     'duration_ms': track_data.get('duration_ms', 0),
                 }
             )
@@ -420,6 +426,12 @@ def generate_recommendations(request):
         # Store new recommendations in database
         recommendations_created = 0
         for track_data in recommendations['tracks']:
+            # Handle preview_url - ensure it's not None (can be None from Spotify API)
+            preview_url = track_data.get('preview_url') or ''
+            album_cover_url = ''
+            if track_data['album'].get('images'):
+                album_cover_url = track_data['album']['images'][0]['url'] if track_data['album']['images'] else ''
+            
             # Create or get Track record
             track, _ = Track.objects.get_or_create(
                 spotify_id=track_data['id'],
@@ -427,9 +439,9 @@ def generate_recommendations(request):
                     'name': track_data['name'],
                     'artist': ', '.join([artist['name'] for artist in track_data.get('artists', [])]),
                     'album': track_data['album']['name'],
-                    'album_cover_url': track_data['album']['images'][0]['url'] if track_data['album'].get('images') else '',
-                    'preview_url': track_data.get('preview_url', ''),
-                    'external_url': track_data.get('external_urls', {}).get('spotify', ''),
+                    'album_cover_url': album_cover_url,
+                    'preview_url': preview_url,
+                    'external_url': track_data.get('external_urls', {}).get('spotify', '') or '',
                     'duration_ms': track_data.get('duration_ms', 0),
                 }
             )
