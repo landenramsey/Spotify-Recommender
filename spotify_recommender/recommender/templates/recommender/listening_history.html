@@ -1,0 +1,47 @@
+{% extends 'recommender/base.html' %}
+
+{% block title %}Listening History - Spotify Recommender{% endblock %}
+
+{% block content %}
+<div class="history-page">
+    <div class="page-header">
+        <h1>Your Listening History</h1>
+        <a href="{% url 'recommender:dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
+    </div>
+
+    {% if history %}
+        <div class="history-list">
+            {% for entry in history %}
+                <div class="history-item">
+                    <div class="history-image">
+                        {% if entry.track.album_cover_url %}
+                            <img src="{{ entry.track.album_cover_url }}" alt="{{ entry.track.album }}">
+                        {% else %}
+                            <div class="no-image">🎵</div>
+                        {% endif %}
+                    </div>
+                    <div class="history-info">
+                        <h3 class="track-name">{{ entry.track.name }}</h3>
+                        <p class="track-artist">{{ entry.track.artist }}</p>
+                        <p class="track-album">{{ entry.track.album }}</p>
+                        <p class="played-at">Played: {{ entry.played_at|date:"F d, Y H:i" }}</p>
+                        {% if entry.track.external_url %}
+                            <a href="{{ entry.track.external_url }}" target="_blank" class="btn btn-sm btn-primary">
+                                Open in Spotify
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">📻</div>
+            <h2>No listening history yet</h2>
+            <p>Fetch your listening history from Spotify to get started!</p>
+            <a href="{% url 'recommender:dashboard' %}" class="btn btn-primary">Go to Dashboard</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+

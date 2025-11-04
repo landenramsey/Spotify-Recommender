@@ -1,0 +1,57 @@
+{% extends 'recommender/base.html' %}
+
+{% block title %}Recommendations - Spotify Recommender{% endblock %}
+
+{% block content %}
+<div class="recommendations-page">
+    <div class="page-header">
+        <h1>Your Personalized Recommendations</h1>
+        <a href="{% url 'recommender:generate_recommendations' %}" class="btn btn-primary">Generate New Recommendations</a>
+    </div>
+
+    {% if recommendations %}
+        <div class="recommendations-grid">
+            {% for rec in recommendations %}
+                <div class="recommendation-card">
+                    <div class="track-image">
+                        {% if rec.track.album_cover_url %}
+                            <img src="{{ rec.track.album_cover_url }}" alt="{{ rec.track.album }}">
+                        {% else %}
+                            <div class="no-image">🎵</div>
+                        {% endif %}
+                    </div>
+                    <div class="track-info">
+                        <h3 class="track-name">{{ rec.track.name }}</h3>
+                        <p class="track-artist">{{ rec.track.artist }}</p>
+                        <p class="track-album">{{ rec.track.album }}</p>
+                        {% if rec.reason %}
+                            <p class="recommendation-reason">{{ rec.reason }}</p>
+                        {% endif %}
+                        <div class="track-actions">
+                            {% if rec.track.external_url %}
+                                <a href="{{ rec.track.external_url }}" target="_blank" class="btn btn-sm btn-primary">
+                                    Open in Spotify
+                                </a>
+                            {% endif %}
+                            {% if rec.track.preview_url %}
+                                <audio controls class="audio-preview">
+                                    <source src="{{ rec.track.preview_url }}" type="audio/mpeg">
+                                    Your browser does not support the audio element.
+                                </audio>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">🎵</div>
+            <h2>No recommendations yet</h2>
+            <p>Generate recommendations based on your listening history to discover new music!</p>
+            <a href="{% url 'recommender:dashboard' %}" class="btn btn-primary">Go to Dashboard</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+

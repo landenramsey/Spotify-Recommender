@@ -1,0 +1,99 @@
+{% extends 'recommender/base.html' %}
+
+{% block title %}Dashboard - Spotify Recommender{% endblock %}
+
+{% block content %}
+<div class="dashboard">
+    <div class="dashboard-header">
+        <h1>Welcome back, {% if profile %}{{ profile.display_name }}{% else %}{{ user.username }}{% endif %}!</h1>
+        {% if profile %}
+            <div class="profile-info">
+                {% if profile.profile_image_url %}
+                    <img src="{{ profile.profile_image_url }}" alt="Profile" class="profile-image">
+                {% endif %}
+                <div class="profile-details">
+                    <p><strong>Spotify ID:</strong> {{ profile.spotify_id }}</p>
+                    {% if profile.country %}
+                        <p><strong>Country:</strong> {{ profile.country }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="dashboard-actions">
+        <div class="action-card">
+            <h3>📻 Fetch Listening History</h3>
+            <p>Fetch and store your recent listening history from Spotify</p>
+            <form method="POST" action="{% url 'recommender:fetch_history' %}" id="fetchHistoryForm">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-primary" id="fetchBtn">
+                    Fetch History
+                </button>
+            </form>
+            <div id="fetchStatus" class="status-message"></div>
+        </div>
+
+        <div class="action-card">
+            <h3>🎯 Generate Recommendations</h3>
+            <p>Get personalized song recommendations based on your listening history</p>
+            <form method="POST" action="{% url 'recommender:generate_recommendations' %}" id="generateRecsForm">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-primary" id="generateBtn">
+                    Generate Recommendations
+                </button>
+            </form>
+        </div>
+
+        <div class="action-card">
+            <h3>📋 View Your Data</h3>
+            <p>Explore your listening history and recommendations</p>
+            <div class="action-links">
+                <a href="{% url 'recommender:listening_history' %}" class="btn btn-secondary">View History</a>
+                <a href="{% url 'recommender:recommendations' %}" class="btn btn-secondary">View Recommendations</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('fetchHistoryForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const form = this;
+    const btn = document.getElementById('fetchBtn');
+    const status = document.getElementById('fetchStatus');
+    
+    btn.disabled = true;
+    btn.textContent = 'Fetching...';
+    status.textContent = '';
+    
+    fetch(form.action, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': form.querySelector('[name=csrfmiddlewaretoken]').value,
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({})
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            status.textContent = `✅ ${data.message}`;
+            status.className = 'status-message success';
+        } else {
+            status.textContent = `❌ Error: ${data.error || 'Unknown error'}`;
+            status.className = 'status-message error';
+        }
+    })
+    .catch(error => {
+        status.textContent = `❌ Error: ${error.message}`;
+        status.className = 'status-message error';
+    })
+    .finally(() => {
+        btn.disabled = false;
+        btn.textContent = 'Fetch History';
+    });
+});
+</script>
+{% endblock %}
+
