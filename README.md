@@ -32,6 +32,9 @@ A Django web application that provides personalized music recommendations based 
 
 ### 2. Install Dependencies
 
+**Important**: All Django commands should be run from the `spotify_recommender/` directory (the folder that contains `manage.py`).
+
+From the project root directory:
 ```bash
 cd spotify_recommender
 pip install -r requirements.txt
@@ -65,6 +68,9 @@ Note: This is fine for development, but use environment variables for production
 
 ### 4. Run Database Migrations
 
+**Note**: Make sure you're in the `spotify_recommender/` directory (where `manage.py` is located).
+
+From the project root directory:
 ```bash
 cd spotify_recommender
 python manage.py makemigrations
@@ -74,12 +80,21 @@ python manage.py migrate
 ### 5. Create a Superuser (Optional)
 
 ```bash
+# Make sure you're in the spotify_recommender/ directory
 python manage.py createsuperuser
 ```
 
 ### 6. Run the Development Server
 
 ```bash
+# Make sure you're in the spotify_recommender/ directory
+python manage.py runserver
+```
+
+**Quick Tip**: If you're activating a virtual environment, you can do it all in one command:
+```bash
+cd spotify_recommender
+source ../venv/bin/activate  # Adjust path if your venv is in a different location
 python manage.py runserver
 ```
 
